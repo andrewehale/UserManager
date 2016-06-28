@@ -1,0 +1,31 @@
+server:
+    type: simple
+    applicationContextPath: /
+    adminContextPath: /admin
+    connector:
+        type: http
+        port: 1337
+    requestLog:
+        timeZone: UTC
+        appenders:
+          - type: file
+            currentLogFilename: ./log/access.log
+            threshold: ALL
+            archive: true
+            archivedLogFilenamePattern: ./log/access.%d.log.gz
+            archivedFileCount: 3
+
+database:
+    driverClass: org.apache.derby.jdbc.EmbeddedDriver
+    user: api_user
+    password: '*****'
+    url: jdbc:derby:./database/usermanager;create=true
+    validationQuery: "/* usage database Health Check */ SELECT 1 from SYSIBM.SYSDUMMY1"
+
+logging:
+    appenders:
+      - type: file
+        currentLogFilename: ./log/usage.log
+        archivedLogFilenamePattern: ./log/usage.%d.log.gz
+        archivedFileCount: 3
+        timeZone: UTC
