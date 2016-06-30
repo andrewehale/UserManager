@@ -1,8 +1,8 @@
 package com.andrewhale.usermanager.resources;
 
 import com.andrewhale.usermanager.Err;
+import com.andrewhale.usermanager.api.AuthToken;
 import com.andrewhale.usermanager.api.Status;
-import com.andrewhale.usermanager.api.UserWithPassword;
 import com.andrewhale.usermanager.db.H2JDBIRule;
 import com.andrewhale.usermanager.db.UsersDAO;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -41,15 +41,15 @@ public class UserResourceTest2 {
     @Test
     public void testDoPostUserAddDuplicates() {
         // Now add the first user and verify it happened
-        UserWithPassword user = new UserWithPassword(1000L, "test@testdomain.com", "password10");
+        AuthToken user = new AuthToken("test@testdomain.com", "password10");
 
-        Response response = RULE.client().target("/users/add/0").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
+        Response response = RULE.client().target("/users/add").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
         Status status = response.readEntity(Status.class);
         assertThat(status.getErrorCode()).isEqualTo(0);
 
-        UserWithPassword sameUser = new UserWithPassword(1001L, "test@testdomain.com", "password11");
-        response = RULE.client().target("/users/add/0").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
+        AuthToken sameUser = new AuthToken("test@testdomain.com", "password11");
+        response = RULE.client().target("/users/add").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(sameUser, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
         status = response.readEntity(Status.class);
         assertThat(status.getErrorCode()).isEqualTo(Err.USER_EXISTS);

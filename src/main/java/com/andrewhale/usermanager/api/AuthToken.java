@@ -6,22 +6,18 @@ import java.util.Arrays;
 /**
  * Created by andrew on 6/21/2016.
  */
-public class UserWithPassword {
+public class AuthToken {
     private String emailAddress;
     private String password;
-    private long userId;
-    private byte[] salt;
 
-    public UserWithPassword() {
-        this.userId = 0L;
+    public AuthToken() {
         this.emailAddress = null;
         this.password = null;
     }
 
-    public UserWithPassword(long userId, String emailAddress, String password) {
-        this.userId = userId;
+    public AuthToken(String emailAddress, String password) {
         this.emailAddress = emailAddress;
-        setPassword(password);
+        this.password = password;
     }
 
     public String getEmailAddress() {
@@ -32,12 +28,8 @@ public class UserWithPassword {
         this.emailAddress = emailAddress;
     }
 
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getPassword() {
@@ -50,16 +42,10 @@ public class UserWithPassword {
      *
      * @param password Unencrpyted password.
      */
-    public void setPassword(String password) {
+    public void xxsetPassword(String password) {
         this.password = password;
         // Generate the salt
-        SecureRandom random = new SecureRandom();
-        salt = new byte[256];
-        random.nextBytes(salt);
-    }
 
-    public byte[] getSalt() {
-        return salt;
     }
 
     @Override
@@ -67,12 +53,11 @@ public class UserWithPassword {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UserWithPassword that = (UserWithPassword) o;
+        AuthToken authToken = (AuthToken) o;
 
-        if (userId != that.userId) return false;
-        if (emailAddress != null ? !emailAddress.equals(that.emailAddress) : that.emailAddress != null) return false;
-        if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        return Arrays.equals(salt, that.salt);
+        if (emailAddress != null ? !emailAddress.equals(authToken.emailAddress) : authToken.emailAddress != null)
+            return false;
+        return password != null ? password.equals(authToken.password) : authToken.password == null;
 
     }
 
@@ -80,18 +65,14 @@ public class UserWithPassword {
     public int hashCode() {
         int result = emailAddress != null ? emailAddress.hashCode() : 0;
         result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (int) (userId ^ (userId >>> 32));
-        result = 31 * result + Arrays.hashCode(salt);
         return result;
     }
 
     @Override
     public String toString() {
-        return "UserWithPassword{" +
+        return "AuthToken{" +
                 "emailAddress='" + emailAddress + '\'' +
-                ", password=*" +
-                ", userId=" + userId +
-                ", salt=" + Arrays.toString(salt) +
+                ", password=*'" +
                 '}';
     }
 }
