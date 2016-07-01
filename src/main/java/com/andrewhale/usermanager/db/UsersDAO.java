@@ -14,25 +14,28 @@ import java.util.List;
  */
 public abstract class UsersDAO {
 
-    @SqlUpdate("insert into USERS (EMAIL_ADDRESS, PASSWORD, SALT) values(:emailAddress, :password, :salt)")
-    public abstract void addUser(@Bind("emailAddress") String emailAddress, @Bind("password") byte[] password, @Bind("salt") byte[] salt);
+    @SqlUpdate("insert into USERS (EMAIL_ADDRESS, PASSWORD, NAME, SALT) values(:emailAddress, :password, :name, :salt)")
+    public abstract void addUser(@Bind("emailAddress") String emailAddress,
+                                 @Bind("password") byte[] password,
+                                 @Bind("name") String name,
+                                 @Bind("salt") byte[] salt);
 
     @SqlUpdate("delete from USERS")
     public abstract void deleteAllUsers();
 
     @RegisterMapper(UserMapper.class)
-    @SqlQuery("select USER_ID, EMAIL_ADDRESS from USERS")
+    @SqlQuery("select USER_ID, EMAIL_ADDRESS, NAME from USERS")
     public abstract List<User> selectAllUsers();
 
     @RegisterMapper(UserMapper.class)
-    @SqlQuery("select USER_ID, EMAIL_ADDRESS from USERS where USER_ID = :userId")
+    @SqlQuery("select USER_ID, EMAIL_ADDRESS, NAME from USERS where USER_ID = :userId")
     public abstract User selectUserByUserId(@Bind("userId") long userId);
 
     @RegisterMapper(UserMapper.class)
-    @SqlQuery("select USER_ID, EMAIL_ADDRESS from USERS where EMAIL_ADDRESS = :emailAddress")
+    @SqlQuery("select USER_ID, EMAIL_ADDRESS, NAME from USERS where EMAIL_ADDRESS = :emailAddress")
     public abstract User selectUserByEmailAddress(@Bind("emailAddress") String emailAddress);
 
     @RegisterMapper(EncryptedUserMapper.class)
-    @SqlQuery("select USER_ID, EMAIL_ADDRESS, PASSWORD, SALT from USERS where EMAIL_ADDRESS = :emailAddress")
+    @SqlQuery("select USER_ID, EMAIL_ADDRESS, PASSWORD, NAME, SALT from USERS where EMAIL_ADDRESS = :emailAddress")
     public abstract EncryptedUser selectUserWithPassByEmailAddress(@Bind("emailAddress") String emailAddress);
 }

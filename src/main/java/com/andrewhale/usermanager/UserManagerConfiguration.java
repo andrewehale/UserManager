@@ -6,6 +6,7 @@ import io.dropwizard.db.DataSourceFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.security.SecureRandom;
 
 /**
  * Created by andrew on 6/20/2016.
@@ -24,5 +25,13 @@ public class UserManagerConfiguration extends Configuration{
 
     public DataSourceFactory getDataSourceFactory() {
         return database;
+    }
+
+    public byte[] getTokenSecret() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[256];
+        random.nextBytes(salt);
+
+        return salt;
     }
 }

@@ -14,6 +14,7 @@ public class UserMapper implements ResultSetMapper<User>  {
     @Override
     public User map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
         return new User(resultSet.getLong("USER_ID"),
-                resultSet.getString("EMAIL_ADDRESS"));
+                resultSet.getString("EMAIL_ADDRESS"),
+                resultSet.getString("NAME"));
     }
 }

@@ -1,10 +1,17 @@
 package com.andrewhale.usermanager;
 
 import com.andrewhale.usermanager.api.Status;
+import com.andrewhale.usermanager.api.User;
+import com.andrewhale.usermanager.auth.TokenAuthFilter;
+import com.andrewhale.usermanager.auth.UserManagerAuthenticator;
+import com.andrewhale.usermanager.auth.UserManagerAuthorizer;
 import com.andrewhale.usermanager.db.UsersDAO;
+import com.andrewhale.usermanager.resources.SecuredResource;
 import com.andrewhale.usermanager.resources.ShutdownResource;
 import com.andrewhale.usermanager.resources.UserResource;
 import io.dropwizard.Application;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.jdbi.DBIFactory;
@@ -19,6 +26,10 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.keys.HmacKey;
 import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +40,7 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.nio.channels.FileLock;
 import java.nio.channels.ServerSocketChannel;
+import java.security.Principal;
 import java.sql.Connection;
 
 /**
@@ -121,6 +133,17 @@ public class UserManagerApplication extends Application<UserManagerConfiguration
         log.info("Run");
         Status status = new Status();
 
+        byte[] key = config.getTokenSecret();
+
+        // Create our token consumer
+        JwtConsumer consumer = new JwtConsumerBuilder()
+                .setAllowedClockSkewInSeconds(60)
+                .setRequireExpirationTime()
+                .setRequireSubject()
+                .setVerificationKey(new HmacKey(key))
+                .setRelaxVerificationKeyValidation()
+                .build();
+
         // Save off a reference to the jetty server object. This has to be done via a callback
         environment.lifecycle().addServerLifecycleListener((Server server) -> {
             jettyServer = server;
@@ -154,9 +177,25 @@ public class UserManagerApplication extends Application<UserManagerConfiguration
         final DBI jdbi = factory.build(environment, config.getDataSourceFactory(), "derby");
         UsersDAO users = jdbi.onDemand(UsersDAO.class);
 
+        // This is where we register authorization
+        environment.jersey().register(new AuthDynamicFeature(
+                new TokenAuthFilter.Builder<User>()
+                .setJwtConsumer(consumer)
+                .setRealm("realm")
+                .setPrefix("Bearer")
+                .setAuthorizer(new UserManagerAuthorizer())
+                .setAuthenticator(new UserManagerAuthenticator())
+                .buildAuthFilter()
+        ));
+
         // This is where we would register REST endpoints
         environment.jersey().register(new ShutdownResource(this.stopJettyFunction));
         environment.jersey().register(new UserResource(users));
+
+        // test for jwt
+        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Principal.class));
+        environment.jersey().register(RolesAllowedDynamicFeature.class);
+        environment.jersey().register(new SecuredResource(key));
 
         // This is where we would register scheduled tasks
     }

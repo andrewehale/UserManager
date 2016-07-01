@@ -41,9 +41,9 @@ public class UsersDAOTest {
         byte[] salt = new byte[256];
         random.nextBytes(salt);
 
-        instance.addUser("test@testdomain.com", "password".getBytes(), salt);
+        instance.addUser("test@testdomain.com", "password".getBytes(), "First Last", salt);
 
-        User test = new User(1000L, "test@testdomain.com");
+        User test = new User(1000L, "test@testdomain.com", "First Last");
         List<User> results = instance.selectAllUsers();
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getEmailAddress()).isEqualTo("test@testdomain.com");
@@ -52,14 +52,14 @@ public class UsersDAOTest {
     @Test
     public void testAddDuplicate() {
         System.out.println("addDuplicateUser");
-        instance.addUser("test@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("test@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
 
-        User test = new User(1000L, "test@testdomain.com");
+        User test = new User(1000L, "test@testdomain.com", "First Last");
         List<User> results = instance.selectAllUsers();
         assertThat(results.get(0).getEmailAddress()).isEqualTo("test@testdomain.com");
 
         try {
-            instance.addUser("test@testdomain.com", "password".getBytes(), "salt".getBytes());
+            instance.addUser("test@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
             fail("Expected exception not thrown.");
         } catch (Exception e) {
             assertThat(e.getMessage()).contains("Unique index or primary key violation");
@@ -69,9 +69,9 @@ public class UsersDAOTest {
     @Test
     public void testDeleteAllUsers() {
         System.out.println("testDeleteAllUsers");
-        instance.addUser("test@testdomain.com", "password".getBytes(), "salt".getBytes());
-        instance.addUser("test1@testdomain.com", "password".getBytes(), "salt".getBytes());
-        instance.addUser("test2@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("test@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
+        instance.addUser("test1@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
+        instance.addUser("test2@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
 
         List<User> results = instance.selectAllUsers();
         assertThat(results).hasSize(3);
@@ -84,9 +84,9 @@ public class UsersDAOTest {
     @Test
     public void testSelectAllUsers() {
         System.out.println("testSelectAllUsers");
-        instance.addUser("test@testdomain.com", "password".getBytes(), "salt".getBytes());
-        instance.addUser("test1@testdomain.com", "password".getBytes(), "salt".getBytes());
-        instance.addUser("test2@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("test@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
+        instance.addUser("test1@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
+        instance.addUser("test2@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
 
         List<User> results = instance.selectAllUsers();
         assertThat(results).hasSize(3);
@@ -98,9 +98,9 @@ public class UsersDAOTest {
     @Test
     public void testAutoIncrementUserId() {
         System.out.println("testAutoIncrementUserId");
-        instance.addUser("test@testdomain.com", "password".getBytes(), "salt".getBytes());
-        instance.addUser("test1@testdomain.com", "password".getBytes(), "salt".getBytes());
-        instance.addUser("test2@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("test@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
+        instance.addUser("test1@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
+        instance.addUser("test2@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
 
         List<User> results = instance.selectAllUsers();
         assertThat(results).hasSize(3);
@@ -112,14 +112,14 @@ public class UsersDAOTest {
     @Test
     public void testSelectUserByUserId() {
         System.out.println("testSelectUserByUserId");
-        instance.addUser("search@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("search@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
         List<User> results = instance.selectAllUsers();
         assertThat(results).hasSize(1);
         long userIdSearchKey = results.get(0).getUserId();
 
         // insert some more data just so there is something in the table
         for (int i = 0; i < 100; i++) {
-            instance.addUser(String.format("test%s@testdomain.com", Integer.toString(i)), "password".getBytes(), "salt".getBytes());
+            instance.addUser(String.format("test%s@testdomain.com", Integer.toString(i)), "password".getBytes(), "First Last", "salt".getBytes());
         }
 
         results = instance.selectAllUsers();
@@ -133,7 +133,7 @@ public class UsersDAOTest {
     @Test
     public void testSelectUserByUserIdInvalid() {
         System.out.println("testSelectUserByUserIdInvalid");
-        instance.addUser("search@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("search@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
 
         User searchResult = instance.selectUserByUserId(-1L);
         assertThat(searchResult).isNull();
@@ -143,14 +143,14 @@ public class UsersDAOTest {
     @Test
     public void testSelectUserByEmailAddress() {
         System.out.println("testSelectUserByEmailAddress");
-        instance.addUser("search@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("search@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
         List<User> results = instance.selectAllUsers();
         assertThat(results).hasSize(1);
         long userIdSearchKey = results.get(0).getUserId();
 
         // insert some more data just so there is something in the table
         for (int i = 0; i < 100; i++) {
-            instance.addUser(String.format("test%s@testdomain.com", Integer.toString(i)), "password".getBytes(), "salt".getBytes());
+            instance.addUser(String.format("test%s@testdomain.com", Integer.toString(i)), "password".getBytes(), "First Last", "salt".getBytes());
         }
 
         results = instance.selectAllUsers();
@@ -164,7 +164,7 @@ public class UsersDAOTest {
     @Test
     public void testSelectUserByEmailAddressInvalid() {
         System.out.println("testSelectUserByEmailAddressInvalid");
-        instance.addUser("search@testdomain.com", "password".getBytes(), "salt".getBytes());
+        instance.addUser("search@testdomain.com", "password".getBytes(), "First Last", "salt".getBytes());
 
         User searchResult = instance.selectUserByEmailAddress("");
         assertThat(searchResult).isNull();
@@ -179,7 +179,7 @@ public class UsersDAOTest {
         byte[] salt = new byte[256];
         random.nextBytes(salt);
 
-        instance.addUser("test@testdomain.com", "password".getBytes(), salt);
+        instance.addUser("test@testdomain.com", "password".getBytes(), "First Last", salt);
 
         EncryptedUser testUser = instance.selectUserWithPassByEmailAddress("test@testdomain.com");
         assertThat(testUser.getSalt()).isEqualTo(salt);

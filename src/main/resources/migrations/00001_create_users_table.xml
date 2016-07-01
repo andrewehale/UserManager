@@ -11,6 +11,9 @@
             <column name="EMAIL_ADDRESS" type="VARCHAR(512)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="unique_email"/>
             </column>
+            <column name="NAME" type="VARCHAR(512)">
+                <constraints nullable="false" />
+            </column>
             <column name="PASSWORD" type="VARCHAR2(256)">
                 <constraints nullable="false"/>
             </column>

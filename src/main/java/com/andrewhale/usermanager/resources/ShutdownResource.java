@@ -5,6 +5,7 @@ import com.codahale.metrics.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,6 +32,7 @@ public class ShutdownResource {
     @GET
     @Timed
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"ADMIN"})
     public Status shutdownServer(@Context ServletContext context) {
         log.info("shutdownServer...");
         Status status = new Status();

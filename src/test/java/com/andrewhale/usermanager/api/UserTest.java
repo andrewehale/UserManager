@@ -24,7 +24,7 @@ public class UserTest {
         System.out.println("Current relative path is: " + s);
 
         System.out.println("serializeToJSON");
-        final User user = new User(Long.MAX_VALUE, "test@testdomain.com");
+        final User user = new User(Long.MAX_VALUE, "test@testdomain.com", "First Last");
         System.out.println(MAPPER.writeValueAsString(user));
         assertThat(MAPPER.writeValueAsString(user)).isEqualTo(fixture("fixtures/user.json"));
 
@@ -33,7 +33,7 @@ public class UserTest {
     @Test
     public void deserializesFromJSON() throws Exception {
         System.out.println("deserializeFromJSON");
-        final User user = new User(Long.MAX_VALUE, "test@testdomain.com");
+        final User user = new User(Long.MAX_VALUE, "test@testdomain.com", "First Last");
         System.out.println(user);
         System.out.println(MAPPER.readValue(fixture("fixtures/user.json"), User.class).toString());
         assertThat(MAPPER.readValue(fixture("fixtures/user.json"), User.class)).isEqualTo(user);

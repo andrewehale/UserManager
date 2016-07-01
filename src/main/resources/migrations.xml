@@ -6,5 +6,7 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
     <include file="migrations/00001_create_users_table.xml"/>
+    <include file="migrations/00002_create_user_permissions_table.xml"/>
+    <include file="migrations/00003_create_permissions_table.xml"/>
 
 </databaseChangeLog>

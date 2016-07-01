@@ -2,9 +2,9 @@ package com.andrewhale.usermanager.resources;
 
 import com.andrewhale.usermanager.Err;
 import com.andrewhale.usermanager.Tools;
+import com.andrewhale.usermanager.api.NewUserToken;
 import com.andrewhale.usermanager.api.Status;
 import com.andrewhale.usermanager.api.User;
-import com.andrewhale.usermanager.api.AuthToken;
 import com.andrewhale.usermanager.db.UsersDAO;
 import com.codahale.metrics.annotation.Timed;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
@@ -33,13 +33,13 @@ public class UserResource {
     @POST
     @Timed
     @Consumes(MediaType.APPLICATION_JSON)
-    public Object doPost(@PathParam("action") String action, AuthToken authToken) {
+    public Object doPost(@PathParam("action") String action, NewUserToken newUserToken) {
         Status status = new Status();
         log.info(String.format("doPost - action: %s", action));
 
         switch (action) {
             case "add":
-                status = addUser(authToken);
+                status = addUser(newUserToken);
                 break;
             default:
                 status.setErrorCode(Err.UNEXPECTED_ACTION);
@@ -72,24 +72,24 @@ public class UserResource {
      * user requirements. Returns a bad status if something went wrong.
      *
      * Synchronized so we don't get into any issues with race conditions and adding users
-     * @param authToken
+     * @param newUserToken
      * @return Status object. Check code and message for details.
      */
-    public  synchronized Status addUser(AuthToken authToken) {
+    public  synchronized Status addUser(NewUserToken newUserToken) {
         Status status = new Status();
         log.info("addUser");
 
-        if (usersDao.selectUserByEmailAddress(authToken.getEmailAddress()) != null) {
+        if (usersDao.selectUserByEmailAddress(newUserToken.getEmailAddress()) != null) {
             status.setErrorCode(Err.USER_EXISTS);
-            status.setErrorMessage(String.format("A user already exists with the email address %s", authToken.getEmailAddress()));
+            status.setErrorMessage(String.format("A user already exists with the email address %s", newUserToken.getEmailAddress()));
         }
 
         if (status.isGood()) {
-            status = Tools.validateEmailAddress(authToken.getEmailAddress());
+            status = Tools.validateEmailAddress(newUserToken.getEmailAddress());
         }
 
         if (status.isGood()) {
-            status = Tools.validatePasswordRequirements(authToken.getPassword());
+            status = Tools.validatePasswordRequirements(newUserToken.getPassword());
         }
 
         if (status.isGood()) {
@@ -99,10 +99,12 @@ public class UserResource {
             byte[] salt = new byte[256];
             random.nextBytes(salt);
 
-            byte[] hashed = Tools.hashPassword(authToken.getPassword().toCharArray(), salt, 20, 256);
+            byte[] hashed = Tools.hashPassword(newUserToken.getPassword().toCharArray(), salt, 20, 256);
+
+            // TODO need to move this all into a transaction so I can also add permissions
 
             try {
-                usersDao.addUser(authToken.getEmailAddress(), hashed, salt);
+                usersDao.addUser(newUserToken.getEmailAddress(), hashed, newUserToken.getName(), salt);
             } catch (UnableToExecuteStatementException ex) {
                 status.setErrorCode(Err.SQL_ERROR);
                 status.setErrorMessage(ex.getLocalizedMessage());
@@ -112,7 +114,7 @@ public class UserResource {
                 salt[i] = (byte)0;
             }
 
-            authToken.setPassword("");
+            newUserToken.setPassword("");
         }
 
         return status;

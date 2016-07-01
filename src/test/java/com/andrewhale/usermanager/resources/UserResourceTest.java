@@ -2,13 +2,12 @@ package com.andrewhale.usermanager.resources;
 
 import com.andrewhale.usermanager.Err;
 import com.andrewhale.usermanager.Tools;
-import com.andrewhale.usermanager.api.AuthToken;
+import com.andrewhale.usermanager.api.NewUserToken;
 import com.andrewhale.usermanager.api.Status;
 import com.andrewhale.usermanager.api.User;
 import com.andrewhale.usermanager.db.UsersDAO;
 import com.google.common.collect.ImmutableList;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -44,7 +43,7 @@ public class UserResourceTest {
 
     @Test
     public void testDoGetList() {
-        User user = new User(1000L, "test@testdomain.com");
+        User user = new User(1000L, "test@testdomain.com", "First Last");
         final List<User> users = ImmutableList.of(user);
         when(mockUsersDao.selectAllUsers()).thenReturn(users);
         final List<User> result = RULE.client().target("/users/list").request().get(new GenericType<List<User>>() {
@@ -57,7 +56,7 @@ public class UserResourceTest {
 
     @Test
     public void testDoPostUserAdd() {
-        AuthToken user = new AuthToken("test@testdomain.com", "password10");
+        NewUserToken user = new NewUserToken("test@testdomain.com", "password10", "First Last");
 
         final Response response = RULE.client().target("/users/add").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
@@ -75,7 +74,7 @@ public class UserResourceTest {
 
         byte[] hashed = Tools.hashPassword(user.getPassword().toCharArray(), salt, 20, 256);
 
-        verify(mockUsersDao).addUser(eq(user.getEmailAddress()), anyObject(), anyObject());
+        verify(mockUsersDao).addUser(eq(user.getEmailAddress()), anyObject(), eq(user.getName()), anyObject());
     }
 
     /**
@@ -83,7 +82,7 @@ public class UserResourceTest {
      */
     @Test
     public void testDoPostUserAddInvalidEmail() {
-        AuthToken user = new AuthToken("invalid_email", "password");
+        NewUserToken user = new NewUserToken("invalid_email", "password", "First Last");
 
         final Response response = RULE.client().target("/users/add").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
@@ -97,7 +96,7 @@ public class UserResourceTest {
      */
     @Test
     public void testDoPostUserAddInvalidPass() {
-        AuthToken user = new AuthToken("test@testdomain.com", "password");
+        NewUserToken user = new NewUserToken("test@testdomain.com", "password", "First Last");
 
         final Response response = RULE.client().target("/users/add").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);

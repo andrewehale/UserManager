@@ -83,7 +83,7 @@ public class EncryptedUser {
 
     @Override
     public String toString() {
-        return "AuthToken{" +
+        return "NewUserToken{" +
                 "emailAddress='" + emailAddress + '\'' +
                 ", password=*" +
                 ", userId=" + userId +

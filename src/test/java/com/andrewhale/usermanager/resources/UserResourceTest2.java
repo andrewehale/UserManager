@@ -1,7 +1,7 @@
 package com.andrewhale.usermanager.resources;
 
 import com.andrewhale.usermanager.Err;
-import com.andrewhale.usermanager.api.AuthToken;
+import com.andrewhale.usermanager.api.NewUserToken;
 import com.andrewhale.usermanager.api.Status;
 import com.andrewhale.usermanager.db.H2JDBIRule;
 import com.andrewhale.usermanager.db.UsersDAO;
@@ -41,14 +41,14 @@ public class UserResourceTest2 {
     @Test
     public void testDoPostUserAddDuplicates() {
         // Now add the first user and verify it happened
-        AuthToken user = new AuthToken("test@testdomain.com", "password10");
+        NewUserToken user = new NewUserToken("test@testdomain.com", "password10", "First Last");
 
         Response response = RULE.client().target("/users/add").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
         Status status = response.readEntity(Status.class);
         assertThat(status.getErrorCode()).isEqualTo(0);
 
-        AuthToken sameUser = new AuthToken("test@testdomain.com", "password11");
+        NewUserToken sameUser = new NewUserToken("test@testdomain.com", "password11", "First Last");
         response = RULE.client().target("/users/add").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(sameUser, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.OK);
         status = response.readEntity(Status.class);

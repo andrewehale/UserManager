@@ -1,23 +1,23 @@
 package com.andrewhale.usermanager.api;
 
-import java.security.SecureRandom;
-import java.util.Arrays;
-
 /**
  * Created by andrew on 6/21/2016.
  */
-public class AuthToken {
+public class NewUserToken {
     private String emailAddress;
     private String password;
+    private String name;
 
-    public AuthToken() {
+    public NewUserToken() {
         this.emailAddress = null;
         this.password = null;
+        this.name = null;
     }
 
-    public AuthToken(String emailAddress, String password) {
+    public NewUserToken(String emailAddress, String password, String name) {
         this.emailAddress = emailAddress;
         this.password = password;
+        this.name = name;
     }
 
     public String getEmailAddress() {
@@ -28,24 +28,20 @@ public class AuthToken {
         this.emailAddress = emailAddress;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getPassword() {
         return password;
     }
 
-    /**
-     * This function generates a random salt for the user, then encrypts the password. Perhaps not the best
-     * place to do this but it minimizes the time the password is stored in plain text.
-     *
-     * @param password Unencrpyted password.
-     */
-    public void xxsetPassword(String password) {
+    public void setPassword(String password) {
         this.password = password;
-        // Generate the salt
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -53,11 +49,11 @@ public class AuthToken {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AuthToken authToken = (AuthToken) o;
+        NewUserToken that = (NewUserToken) o;
 
-        if (emailAddress != null ? !emailAddress.equals(authToken.emailAddress) : authToken.emailAddress != null)
-            return false;
-        return password != null ? password.equals(authToken.password) : authToken.password == null;
+        if (emailAddress != null ? !emailAddress.equals(that.emailAddress) : that.emailAddress != null) return false;
+        if (password != null ? !password.equals(that.password) : that.password != null) return false;
+        return name != null ? name.equals(that.name) : that.name == null;
 
     }
 
@@ -65,14 +61,16 @@ public class AuthToken {
     public int hashCode() {
         int result = emailAddress != null ? emailAddress.hashCode() : 0;
         result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "AuthToken{" +
+        return "NewUserToken{" +
                 "emailAddress='" + emailAddress + '\'' +
                 ", password=*'" +
+                ", name='" + name + '\'' +
                 '}';
     }
 }
